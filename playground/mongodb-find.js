@@ -35,7 +35,7 @@ MongoClient.connect('mongodb://frank:frank1%40@localhost:27017/admin', (err, db)
     });
 
 
-    db.close();
+    // db.close();
 });
 
 
