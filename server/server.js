@@ -21,6 +21,7 @@ app.post('/todos', (req, res) => {
 
     newTodo.save().then((doc) => {
         console.log('saved todo', doc);
+        //doc['text'] = 'test123';
         res.status(200).send(doc);
 
     }, (e) => {
@@ -41,13 +42,11 @@ app.post('/user', (req, res) => {
         res.status(400).send(e);
 
     });
-
-
 });
-
 
 app.listen(PORT, () => {
     console.log(`started on port ${PORT}`);
 });
 
 
+module.exports = { app };
