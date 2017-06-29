@@ -116,6 +116,8 @@ app.patch(`/todos/:id`, (req, res) => {
         if (!todo) return res.status(404).send('no todo found');
 
         todo.text = body.text;
+        todo.completedAt = body.completedAt;
+        todo.completed = body.completed;
         todo.save((error, result) => {
             if (error) console.log('eee', error);
 
