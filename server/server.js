@@ -75,9 +75,15 @@ app.delete('/todos/:id', (req, res) => {
     if (!ObjectID.isValid(id)) return res.status(404).send('id is not valid');
 
     Todo.findByIdAndRemove(id).then((todo) => {
-        console.log('==>');
-        if (!todo) return res.status(404).send('no todo found');
-        res.send(`successfully removed ${todo}`);
+        console.log('1==>');
+        if (!todo) {
+            console.log('nothing to delete');
+            return res.status(404).send('no todo found');
+
+        }
+        console.log('2==>', todo);
+
+        res.send({ todo });
     }).catch((e) => {
         res.status(400).send('error ', e);
     });
