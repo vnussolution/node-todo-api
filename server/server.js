@@ -39,8 +39,6 @@ app.get('/todos/:id', (req, res) => {
 
     }).catch((e) => res.status(400).send(e));
 
-
-
 });
 
 
@@ -55,7 +53,6 @@ app.post('/todos', (req, res) => {
     }, (e) => {
         console.log('unable to save todo', e);
         res.status(400).send(e);
-
     });
 });
 
@@ -71,6 +68,20 @@ app.post('/user', (req, res) => {
 
     });
 });
+
+app.delete('/todos/:id', (req, res) => {
+    var id = req.params.id;
+
+    if (!ObjectID.isValid(id)) return res.status(404).send('id is not valid');
+
+    Todo.findByIdAndRemove(id).then((todo) => {
+        console.log('==>');
+        if (!todo) return res.status(404).send('no todo found');
+        res.send(`successfully removed ${todo}`);
+    }).catch((e) => {
+        res.status(400).send('error ', e);
+    });
+})
 
 app.listen(PORT, () => {
     console.log(`started on port ${PORT}`);
