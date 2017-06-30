@@ -6,13 +6,68 @@ const { app } = require('./../server');
 const { Todo } = require('./../models/todo');
 
 const todos = [{ _id: new ObjectID(), text: 'first test todo' },
-{ _id: new ObjectID(), text: 'second test todo' }];
+{ _id: new ObjectID(), text: 'second test todo', completed: true, completedAt: 123 }];
 
 
 beforeEach((done) => {
     Todo.remove({}).then(() => {
         return Todo.insertMany(todos);
     }).then(() => done());
+});
+
+describe('PATCH /todos/:id', () => {
+    it('should update the todo', (done) => {
+        var id = todos[0]._id.toHexString();
+        var newText = 'new text123123123';
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ text: newText, completed: true })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(newText);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number')
+            })
+            .end((err, res) => {
+                if (err) return done(err);
+
+                Todo.find({ _id: id }).then((todos) => {
+                    expect(todos.length).toBe(1);
+                    expect(todos[0].text).toBe(newText);
+                    done();
+                }).catch((e) => done(e));
+            });
+
+    });
+
+    it('should clear completeAt when todo is not completed', (done) => {
+        var id = todos[1]._id.toHexString();
+        var newText = 'new text123234';
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ text: newText, completed: false })
+            .expect(200)
+            .expect((res) => {
+
+                expect(res.body.todo.text).toBe(newText);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+
+            })
+            .end((err, res) => {
+                if (err) return done(err);
+
+                Todo.find({ _id: id }).then((todo) => {
+                    console.log('===<>===', todo);
+                    expect(todo[0].text).toBe(newText);
+                    expect(todo[0].completed).toNotExist();
+                    done();
+                }).catch(e => done(e));
+            });
+
+
+    });
+
 });
 
 describe('DELETE /todos/:id', () => {
@@ -35,7 +90,6 @@ describe('DELETE /todos/:id', () => {
                     expect(todo).toNotExist();
                     done();
                 }).catch((e) => done(e));
-
             });
     });
 
@@ -119,7 +173,6 @@ describe('POST /todos', () => {
                     done();
                 }).catch((e) => done(e));
             })
-
     });
 });
 

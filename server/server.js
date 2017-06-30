@@ -120,8 +120,8 @@ app.patch(`/todos/:id`, (req, res) => {
         todo.completed = body.completed;
         todo.save((error, result) => {
             if (error) console.log('eee', error);
-
-            res.send({ result });
+            console.log('------>>>', result);
+            res.send({ todo });
 
         });
     })
