@@ -9,7 +9,7 @@ const _ = require('lodash');
 var { mongoose } = require('./db/mongoose');
 var Todo = require('./models/todo').Todo;
 var { User } = require('./models/user');
-
+var { authenticate } = require('./middleware/authenticate')
 
 var app = express();
 var PORT = process.env.PORT;
@@ -45,6 +45,12 @@ app.get('/todos/:id', (req, res) => {
 });
 
 
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+
 app.post('/todos', (req, res) => {
     var newTodo = new Todo({ text: req.body.text });
 
@@ -59,17 +65,36 @@ app.post('/todos', (req, res) => {
     });
 });
 
-app.post('/user', (req, res) => {
-
-    var newUser = new User({ name: req.body.name, email: req.body.email });
-
-    newUser.save().then((doc) => {
-        res.status(200).send(doc);
-    }, (e) => {
-        console.log('failed to save user ', e);
-        res.status(400).send(e);
-
+app.get('/users', (req, res) => {
+    User.find().then(users => {
+        res.send({ users });
+    }, error => {
+        res.send(error);
     });
+});
+
+app.post('/users', (req, res) => {
+
+
+    // var newUser = new User({
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     password: req.body.password
+    // });
+
+    var body = _.pick(req.body, ['name', 'email', 'password']);
+    var newUser = new User(body);
+
+    newUser.save().then(() => {
+        console.log('--->');
+        return newUser.generateMyAuthToken();
+    }).then((token) => {
+        res.header('x-authenticate', token).send(newUser);
+    })
+        .catch((e) => {
+            console.log('failed to save user ', e);
+            res.status(400).send(e);
+        });
 });
 
 app.delete('/todos/:id', (req, res) => {
