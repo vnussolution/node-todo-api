@@ -1,3 +1,4 @@
+// the logic behind the scene of jsonwebtoken
 // const { SHA256 } = require('crypto-js');
 
 // var message = 'frank here';
@@ -26,16 +27,32 @@
 //     console.log('data was changed...');
 // }
 
-const jwt = require('jsonwebtoken');
 
-var data = { id: 10 };
+//=================using json web token : npm jsonwebtoken===============================
+// const jwt = require('jsonwebtoken');
 
-var token = jwt.sign(data, `123abc`);
-console.log(token);
+// var data = { id: 10 };
 
-var decoded = jwt.verify(token, '123abc');
+// var token = jwt.sign(data, `123abc`);
+// console.log(token);
 
-console.log('decoded', decoded);
+// var decoded = jwt.verify(token, '123abc');
 
+// console.log('decoded', decoded);
 
+//==========npm bcryptjs ================
+const bcrypt = require('bcryptjs');
 
+var password = '123abc';
+
+bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(password, salt, (err, hash) => {
+        console.log(hash);
+    });
+});
+
+var hashedPassword = '$2a$10$LnrFg78of/6Ix/s0cF/Ii./u8/yW08IUKr7s3Nb0JxZxWM4rHqof2';
+
+bcrypt.compare('123abc', hashedPassword, (err, res) => {
+    console.log(res);//true
+});

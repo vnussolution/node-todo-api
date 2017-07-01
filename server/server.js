@@ -85,10 +85,12 @@ app.post('/users', (req, res) => {
     var body = _.pick(req.body, ['name', 'email', 'password']);
     var newUser = new User(body);
 
-    newUser.save().then(() => {
-        console.log('--->');
-        return newUser.generateMyAuthToken();
-    }).then((token) => {
+    // newUser.save().then(() => {
+    //     console.log('server.js - POST/users - save --->', newUser.password);
+    //     return newUser.generateMyAuthToken();
+    // })
+
+    newUser.generateMyAuthToken().then((token) => {
         res.header('x-authenticate', token).send(newUser);
     })
         .catch((e) => {
