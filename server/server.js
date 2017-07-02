@@ -60,7 +60,7 @@ app.post('/todos', (req, res) => {
         res.status(200).send(doc);
 
     }, (e) => {
-        console.log('unable to save todo', e);
+        //console.log('unable to save todo', e);
         res.status(400).send(e);
     });
 });
@@ -91,10 +91,10 @@ app.post('/users', (req, res) => {
     // })
 
     newUser.generateMyAuthToken().then((token) => {
-        res.header('x-authenticate', token).send(newUser);
+        res.header('x-authFrank', token).send(newUser);
     })
         .catch((e) => {
-            console.log('failed to save user ', e);
+            // console.log('failed to save user ', e);
             res.status(400).send(e);
         });
 });

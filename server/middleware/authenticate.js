@@ -1,7 +1,7 @@
 var { User } = require('./../models/user');
 
 var authenticate = (req, res, next) => {
-    var token = req.header('x-authenticate');
+    var token = req.header('x-authFrank');
 
     User.findByFrankToken(token).then((user) => {
         if (!user) return Promise.reject();

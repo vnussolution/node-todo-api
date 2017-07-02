@@ -36,13 +36,14 @@ var UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', function (next) {
     var user = this;
+    console.log(' ==>>>>> pre save');
 
     if (user.isModified('password')) {
         var pass = user.password;
 
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(pass, salt, (err, hash) => {
-                if (err) return console.log('user.js - bcrypt.genSalt==>>', err);
+                if (err) return console.log('user.js - bcrypt.genSalt==>>');
                 console.log('user.js - bcrypt.genSalt : hash==>> ', hash);
                 user.password = hash;
                 next();
@@ -62,7 +63,7 @@ UserSchema.methods.toJSON = function () {
 
 UserSchema.methods.generateMyAuthToken = function () {
     var user = this;
-    var access = 'authenticate';
+    var access = 'authFrank';
     var token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123');
 
     user.tokens.push({ access, token });
@@ -91,15 +92,11 @@ UserSchema.statics.findByFrankToken = function (token) {
     return User.findOne({
         '_id': decoded._id,
         'tokens.token': token,
-        'tokens.access': 'authenticate'
+        'tokens.access': 'authFrank'
     });
 
 }
 
-
-
 var User = mongoose.model('users', UserSchema);
-
-
 
 module.exports = { User };
