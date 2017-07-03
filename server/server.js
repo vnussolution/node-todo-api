@@ -93,6 +93,13 @@ app.post('/users/login', (req, res) => {
     });
 });
 
+app.delete('/users/me/token', authenticate, (req, res) => {
+    console.log('DELETE users/me/token', req.user);
+    req.user.removeToken(req.token).then(() => {
+        res.status(200).send('logged out');
+    }, () => res.status(400).send('failed to delete')).catch((e) => console.log(' catch::', e));
+})
+
 app.post('/users', (req, res) => {
 
 

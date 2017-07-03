@@ -75,6 +75,12 @@ UserSchema.methods.generateMyAuthToken = function () {
     });
 }
 
+UserSchema.methods.removeToken = function (token) {
+    var user = this;
+    console.log('removeToken::');
+    return user.update({ $pull: { tokens: { token } } });
+}
+
 UserSchema.statics.findByFrankToken = function (token) {
     var User = this;
     var decoded;

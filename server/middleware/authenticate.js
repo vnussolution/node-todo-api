@@ -6,6 +6,7 @@ var authenticate = (req, res, next) => {
     User.findByFrankToken(token).then((user) => {
         if (!user) return Promise.reject();
 
+        console.log('authenticate::', user);
         req.user = user;
         req.token = token;
         next();
