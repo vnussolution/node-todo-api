@@ -21,22 +21,23 @@ app.get('/', (req, res) => {
     res.send('yessss');
 });
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
-        res.send({ todos });
-    }, (e) => {
-        res.status(400).send(e);
-    });
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({ _creator: req.user._id })
+        .then((todos) => {
+            res.send({ todos });
+        }, (e) => {
+            res.status(400).send(e);
+        });
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
         res.status(404).send('Id is not valid');
     }
 
-    Todo.findById(id).then((todo) => {
+    Todo.findOne({ _id: id, _creator: req.user.id }).then((todo) => {
         if (!todo) return res.status(404).send('Id not found');
 
         res.send({ todo });
@@ -52,11 +53,11 @@ app.get('/users/me', authenticate, (req, res) => {
 });
 
 
-app.post('/todos', (req, res) => {
-    var newTodo = new Todo({ text: req.body.text });
+app.post('/todos', authenticate, (req, res) => {
+    var newTodo = new Todo({ text: req.body.text, _creator: req.user._id });
 
     newTodo.save().then((doc) => {
-        console.log('saved todo', doc);
+        //console.log('saved todo', doc);
         //doc['text'] = 'test123';
         res.status(200).send(doc);
 
@@ -92,7 +93,6 @@ app.post('/users/login', (req, res) => {
 });
 
 app.delete('/users/me/token', authenticate, (req, res) => {
-    console.log('DELETE users/me/token', req.user);
     req.user.removeToken(req.token).then(() => {
         res.status(200).send('logged out');
     }, () => res.status(400).send('failed to delete')).catch((e) => console.log(' catch::', e));
@@ -114,7 +114,6 @@ app.post('/users', (req, res) => {
     //     console.log('server.js - POST/users - save --->', newUser.password);
     //     return newUser.generateMyAuthToken();
     // })
-    console.log('POST/users ::');
 
     newUser.generateMyAuthToken().then((token) => {
         res.header('x-authFrank', token).send(newUser);
@@ -124,19 +123,17 @@ app.post('/users', (req, res) => {
     });
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) return res.status(404).send('id is not valid');
 
-    Todo.findByIdAndRemove(id).then((todo) => {
-        console.log('1==>');
+    Todo.findOneAndRemove({ _id: id, _creator: req.user._id }).then((todo) => {
         if (!todo) {
-            console.log('nothing to delete');
+            //console.log('nothing to delete');
             return res.status(404).send('no todo found');
 
         }
-        console.log('2==>', todo);
 
         res.send({ todo });
     }).catch((e) => {
@@ -144,9 +141,8 @@ app.delete('/todos/:id', (req, res) => {
     });
 });
 
-app.patch(`/todos/:id`, (req, res) => {
+app.patch(`/todos/:id`, authenticate, (req, res) => {
     var id = req.params.id;
-    console.log(id);
     var body = _.pick(req.body, ['text', 'completed']);
 
     if (!ObjectID.isValid(id)) return res.status(404).send('id is invalid');
@@ -158,27 +154,27 @@ app.patch(`/todos/:id`, (req, res) => {
         body.completedAt = null;
     }
 
-    // Todo.findOneAndUpdate(id, { $set: body }, { new: true }).then((todo) => {
-    //     if (!todo) return res.status(404).send('no todo found');
-
-    //     res.send({ todo });
-    // }).catch((e) => res.status(400).send(e));
-
-    Todo.findById(id, (err, todo) => {
-        if (err) return res.status(400).send(e);
-
+    Todo.findOneAndUpdate({ _id: id, _creator: req.user._id }, { $set: body }, { new: true }).then((todo) => {
         if (!todo) return res.status(404).send('no todo found');
 
-        todo.text = body.text;
-        todo.completedAt = body.completedAt;
-        todo.completed = body.completed;
-        todo.save((error, result) => {
-            if (error) console.log('eee', error);
-            console.log('------>>>', result);
-            res.send({ todo });
+        res.send({ todo });
+    }).catch((e) => res.status(400).send(e));
 
-        });
-    })
+    // Another way to update
+    // Todo.findOne({ _id: id, _creator: req.user._id }, (err, todo) => {
+    //     if (err) return res.status(400).send(e);
+
+    //     if (!todo) return res.status(404).send('no todo found');
+
+    //     todo.text = body.text;
+    //     todo.completedAt = body.completedAt;
+    //     todo.completed = body.completed;
+    //     todo.save((error, result) => {
+    //         if (error) console.log('eee', error);
+    //         res.send({ todo });
+
+    //     });
+    // }).catch((e) => console.log('patch::', e));
 
 });
 

@@ -23,32 +23,31 @@ const users = [{
     _id: user2Id,
     name: 'user2',
     email: 'user2@frank.com',
-    password: 'frank1@'
+    password: 'frank1@',
+    tokens: [{
+        access: 'authFrank',
+        token: jwt.sign({ _id: user2Id, access: 'authFrank' }, 'abc123').toString()
+    }]
 }];
 
 const todos = [
     {
         _id: new ObjectID(),
-        text: 'first test todo'
+        text: 'first test todo',
+        _creator: user1Id
     },
     {
         _id: new ObjectID(),
         text: 'second test todo',
         completed: true,
-        completedAt: 123
-    },
-    {
-        _id: new ObjectID(),
-        text: 'third test todo',
-        completed: true,
-        completedAt: 123
+        completedAt: 123,
+        _creator: user2Id
     }
 ];
 
 
 const populateTodos = (done) => {
-    console.log('populateTodos');
-
+    //console.log('populateTodos');
     Todo.remove({}).then(() => {
         return Todo.insertMany(todos);
     }).then(() => done());

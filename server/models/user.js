@@ -36,7 +36,7 @@ var UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', function (next) {
     var user = this;
-    console.log(' ==>>>>> pre save');
+    //console.log(' ==>>>>> pre save');
 
     if (user.isModified('password')) {
         var pass = user.password;
@@ -44,7 +44,7 @@ UserSchema.pre('save', function (next) {
         bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(pass, salt, (err, hash) => {
                 if (err) return console.log('user.js - bcrypt.genSalt==>>');
-                console.log('user.js - bcrypt.genSalt : hash==>> ', hash);
+                // console.log('user.js - bcrypt.genSalt : hash==>> ', hash);
                 user.password = hash;
                 next();
             });
@@ -67,9 +67,9 @@ UserSchema.methods.generateMyAuthToken = function () {
     var token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123');
 
     user.tokens.push({ access, token });
-    console.log('generateMyAuthToken', user);
+    //console.log('generateMyAuthToken', user);
     return user.save().then(() => {
-        console.log('user.js - generateMyAuthToken - save --->', user.password);
+        // console.log('user.js - generateMyAuthToken - save --->', user.password);
 
         return token;// return on the second promise in server.js
     });
@@ -77,7 +77,7 @@ UserSchema.methods.generateMyAuthToken = function () {
 
 UserSchema.methods.removeToken = function (token) {
     var user = this;
-    console.log('removeToken::');
+    //console.log('removeToken::');
     return user.update({ $pull: { tokens: { token } } });
 }
 
@@ -112,7 +112,7 @@ UserSchema.statics.findByCredentials = function (body) {
 
         return new Promise((resolve, reject) => {
             bcrypt.compare(body.password, user.password, (err, res) => {
-                console.log('compare result: ', res);//true
+                //  console.log('compare result: ', res);//true
                 result = res;
 
                 if (!res) reject(' wrong password');
