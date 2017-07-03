@@ -4,6 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var { ObjectID } = require('mongodb');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 
 var { mongoose } = require('./db/mongoose');
@@ -73,6 +74,26 @@ app.get('/users', (req, res) => {
     });
 });
 
+// POST /users/login{email,password}
+app.post('/users/login', (req, res) => {
+
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body).then((user) => {
+        if (!user) return res.send('user does not exist');
+
+        // var loggedInUser = new User();
+        user.generateMyAuthToken().then((token) => {
+            res.header('x-authFrank', token).send(user);
+        })
+
+        //res.send(user);
+    }).catch((e) => {
+        res.status(400).send(e);
+    });
+
+});
+
 app.post('/users', (req, res) => {
 
 
@@ -92,11 +113,10 @@ app.post('/users', (req, res) => {
 
     newUser.generateMyAuthToken().then((token) => {
         res.header('x-authFrank', token).send(newUser);
-    })
-        .catch((e) => {
-            // console.log('failed to save user ', e);
-            res.status(400).send(e);
-        });
+    }).catch((e) => {
+        // console.log('failed to save user ', e);
+        res.status(400).send(e);
+    });
 });
 
 app.delete('/todos/:id', (req, res) => {

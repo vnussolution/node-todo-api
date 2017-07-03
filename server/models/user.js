@@ -57,7 +57,7 @@ UserSchema.pre('save', function (next) {
 UserSchema.methods.toJSON = function () {
     var user = this;
     var userObject = user.toObject();
-    return _.pick(userObject, ['_id', 'name', 'email', 'password']);
+    return _.pick(userObject, ['_id', 'name', 'email']);
 
 }
 
@@ -94,6 +94,31 @@ UserSchema.statics.findByFrankToken = function (token) {
         'tokens.token': token,
         'tokens.access': 'authFrank'
     });
+
+};
+
+UserSchema.statics.findByCredentials = function (body) {
+    var User = this;
+    var result;
+
+    return User.findOne({ email: body.email }).then((user) => {
+        if (!user) return Promise.reject('user does not exist');
+
+        return new Promise((resolve, reject) => {
+            bcrypt.compare(body.password, user.password, (err, res) => {
+                console.log('compare result: ', res);//true
+                result = res;
+
+                if (!res) reject(' wrong password');
+
+                resolve(user);
+            });
+
+        });
+
+
+    });
+    //return result;
 
 }
 
