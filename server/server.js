@@ -82,12 +82,10 @@ app.post('/users/login', (req, res) => {
     User.findByCredentials(body).then((user) => {
         if (!user) return res.send('user does not exist');
 
-        // var loggedInUser = new User();
         user.generateMyAuthToken().then((token) => {
             res.header('x-authFrank', token).send(user);
         })
 
-        //res.send(user);
     }).catch((e) => {
         res.status(400).send(e);
     });
@@ -116,6 +114,7 @@ app.post('/users', (req, res) => {
     //     console.log('server.js - POST/users - save --->', newUser.password);
     //     return newUser.generateMyAuthToken();
     // })
+    console.log('POST/users ::');
 
     newUser.generateMyAuthToken().then((token) => {
         res.header('x-authFrank', token).send(newUser);
