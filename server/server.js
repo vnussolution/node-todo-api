@@ -76,69 +76,102 @@ app.get('/users', (req, res) => {
 });
 
 // POST /users/login{email,password}
-app.post('/users/login', (req, res) => {
+app.post('/users/login', async (req, res) => {
 
-    var body = _.pick(req.body, ['email', 'password']);
-
-    User.findByCredentials(body).then((user) => {
-        if (!user) return res.send('user does not exist');
-
-        user.generateMyAuthToken().then((token) => {
-            res.header('x-authFrank', token).send(user);
-        })
-
-    }).catch((e) => {
-        res.status(400).send(e);
-    });
-});
-
-app.delete('/users/me/token', authenticate, (req, res) => {
-    req.user.removeToken(req.token).then(() => {
-        res.status(200).send('logged out');
-    }, () => res.status(400).send('failed to delete')).catch((e) => console.log(' catch::', e));
-})
-
-app.post('/users', (req, res) => {
-
-
-    // var newUser = new User({
-    //     name: req.body.name,
-    //     email: req.body.email,
-    //     password: req.body.password
+    // var body = _.pick(req.body, ['email', 'password']);
+    // User.findByCredentials(body).then((user) => {
+    //     if (!user) return res.send('user does not exist');
+    //     user.generateMyAuthToken().then((token) => {
+    //         res.header('x-authFrank', token).send(user);
+    //     })
+    // }).catch((e) => {
+    //     res.status(400).send(e);
     // });
 
+    //async -await
+    try {
+        var body = _.pick(req.body, ['email', 'password']);
+        const user = await User.findByCredentials(body);
+        if (!user) return res.send('user does not exist');
+
+        const token = await user.generateMyAuthToken();
+        res.header('x-authFrank', token).send(user);
+    } catch (e) {
+        res.status(400).send(e);
+    }
+
+
+});
+
+app.delete('/users/me/token', authenticate, async (req, res) => {
+    // req.user.removeToken(req.token).then(() => {
+    //     res.status(200).send('logged out');
+    // }, () => res.status(400).send('failed to delete')).catch((e) => console.log(' catch::', e));
+
+    // async -await
+
+    try {
+        await req.user.removeToken(req.token);
+        res.status(200).send('logged out');
+    } catch (e) {
+        res.status(400).send('failed to delete');
+    }
+
+
+})
+
+app.post('/users', async (req, res) => {
     var body = _.pick(req.body, ['name', 'email', 'password']);
     var newUser = new User(body);
 
     // newUser.save().then(() => {
-    //     console.log('server.js - POST/users - save --->', newUser.password);
     //     return newUser.generateMyAuthToken();
     // })
 
-    newUser.generateMyAuthToken().then((token) => {
+    // newUser.generateMyAuthToken().then((token) => {
+    //     res.header('x-authFrank', token).send(newUser);
+    // }).catch((e) => {
+    //     res.status(400).send(e);
+    // });
+
+    //async -await
+
+    try {
+        var token = await newUser.generateMyAuthToken();
         res.header('x-authFrank', token).send(newUser);
-    }).catch((e) => {
-        // console.log('failed to save user ', e);
+    } catch (e) {
         res.status(400).send(e);
-    });
+    }
+
+
 });
 
-app.delete('/todos/:id', authenticate, (req, res) => {
+app.delete('/todos/:id', authenticate, async (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) return res.status(404).send('id is not valid');
 
-    Todo.findOneAndRemove({ _id: id, _creator: req.user._id }).then((todo) => {
+    // Todo.findOneAndRemove({ _id: id, _creator: req.user._id }).then((todo) => {
+    //     if (!todo) {
+    //         return res.status(404).send('no todo found');
+    //     }
+
+    //     res.send({ todo });
+    // }).catch((e) => {
+    //     res.status(400).send('error ', e);
+    // });
+
+
+    //async -await
+    try {
+        var todo = await Todo.findOneAndRemove({ _id: id, _creator: req.user._id });
         if (!todo) {
-            //console.log('nothing to delete');
             return res.status(404).send('no todo found');
-
         }
-
         res.send({ todo });
-    }).catch((e) => {
+    } catch (e) {
         res.status(400).send('error ', e);
-    });
+    }
 });
 
 app.patch(`/todos/:id`, authenticate, (req, res) => {
@@ -175,6 +208,7 @@ app.patch(`/todos/:id`, authenticate, (req, res) => {
 
     //     });
     // }).catch((e) => console.log('patch::', e));
+
 
 });
 
