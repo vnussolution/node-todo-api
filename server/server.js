@@ -20,27 +20,27 @@ var PORT = process.env.PORT;
 app.use(bodyParser.json());
 
 ////////////// ng2-fundamental ///////////////////////////////
-app.get('/events', (req, res) => {
-    res.send(EVENTS);
-});
+// app.get('/events', (req, res) => {
+//     res.send(EVENTS);
+// });
 
-app.get('/events/:id', (req, res) => {
-    var id = +req.params.id;
-    var result;
-    result = EVENTS.find(event => event.id === id);
-    if (!result) return res.status(404).send('Id not found');
-    res.send(result);
-});
+// app.get('/events/:id', (req, res) => {
+//     var id = +req.params.id;
+//     var result;
+//     result = EVENTS.find(event => event.id === id);
+//     if (!result) return res.status(404).send('Id not found');
+//     res.send(result);
+// });
 
-app.post('/event', (req, res) => {
-
-
-});
-
-app.put('/event', (req, res) => {
+// app.post('/event', (req, res) => {
 
 
-})
+// });
+
+// app.put('/event', (req, res) => {
+
+
+// })
 
 ///////////////////////////////////////////
 
