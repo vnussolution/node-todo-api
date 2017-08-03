@@ -9,6 +9,8 @@ const bcrypt = require('bcryptjs');
 
 var { mongoose } = require('./db/mongoose');
 var Todo = require('./models/todo').Todo;
+var { EVENTS } = require('./models/event');
+
 var { User } = require('./models/user');
 var { authenticate } = require('./middleware/authenticate')
 
@@ -16,6 +18,35 @@ var app = express();
 var PORT = process.env.PORT;
 
 app.use(bodyParser.json());
+
+////////////// ng2-fundamental ///////////////////////////////
+app.get('/events', (req, res) => {
+    res.send(EVENTS);
+});
+
+app.get('/events/:id', (req, res) => {
+    var id = +req.params.id;
+    var result;
+    result = EVENTS.find(event => event.id === id);
+    if (!result) return res.status(404).send('Id not found');
+    res.send(result);
+});
+
+app.post('/event', (req, res) => {
+
+    // var newTodo = new Todo({ text: req.body.text, _creator: req.user._id });
+
+    // EVENTS.push();
+
+
+});
+
+app.put('/event', (req, res) => {
+
+
+})
+
+///////////////////////////////////////////
 
 app.get('/', (req, res) => {
     res.send('yessss');
@@ -211,8 +242,6 @@ app.patch(`/todos/:id`, authenticate, (req, res) => {
 
 
 });
-
-
 
 app.listen(PORT, () => {
     console.log(`started on port ${PORT}`);
