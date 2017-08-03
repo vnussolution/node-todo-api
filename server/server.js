@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs');
 var { mongoose } = require('./db/mongoose');
 var Todo = require('./models/todo').Todo;
 var { User } = require('./models/user');
-var { authenticate } = require('./middleware/authenticate')
+var { authenticate } = require('./middleware/authenticate');
 
 var app = express();
 var PORT = process.env.PORT;
