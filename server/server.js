@@ -34,10 +34,6 @@ app.get('/events/:id', (req, res) => {
 
 app.post('/event', (req, res) => {
 
-    // var newTodo = new Todo({ text: req.body.text, _creator: req.user._id });
-
-    // EVENTS.push();
-
 
 });
 
